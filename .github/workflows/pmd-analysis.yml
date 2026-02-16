@@ -1,14 +1,16 @@
 name: PMD Check
-on: 
-  pull_request: 
+on:
+  pull_request:
     branches: [ OrgSource ]
 jobs:
   pmd:
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run PMD
+        id: pmd
         uses: pmd/pmd-github-action@v2
         with:
           rulesets: 'config/ruleset.xml'
@@ -18,3 +20,6 @@ jobs:
           createGitHubAnnotations: true
           uploadSarifReport: false
           failOnViolation: true
+      - name: Fail build if there are violations
+        if: steps.pmd.outputs.violations != '0'
+        run: exit 1
