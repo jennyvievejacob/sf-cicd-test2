@@ -1,17 +1,22 @@
-name: PMD Check
-on: 
-  pull_request: 
-    branches: [ OrgSource ] # Only run for PRs targeting OrgSource
+name: Salesforce CI/CD Validation
+
+on:
+  pull_request:
+    branches: [ OrgSource ]
+
 jobs:
+  # --- PMD Static Analysis ---
   pmd:
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Run PMD
         uses: pmd/pmd-github-action@v2
         with:
-          rulesets: 'config/ruleset.xml' # Adjust path if your ruleset.xml is elsewhere
+          rulesets: 'config/ruleset.xml'
           sourcePath: 'force-app/main/default'
           version: latest
           analyzeModifiedFilesOnly: true
