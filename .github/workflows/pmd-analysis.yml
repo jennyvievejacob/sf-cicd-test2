@@ -9,7 +9,6 @@ jobs:
   pmd:
     runs-on: ubuntu-latest
     permissions:
-      permissions:
         contents: write
         pull-requests: write
         repository-projects: write
