@@ -1,14 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ruleset name="Apex Rules"
-    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+<?xml version="1.0"?>
+<ruleset name="Apex Best Practices"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+                             http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
     <description>
-        Custom ruleset for Apex.
+        Basic Apex coding style and best practices ruleset.
+        Enforces readability, maintainability, and common Salesforce guidelines.
     </description>
-    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts" />
-    <rule ref="category/apex/errorprone.xml/AvoidDirectAccessTriggerMap" />
-    <rule ref="category/apex/security.xml/ApexSharingViolations" />
-    <rule ref="category/apex/codestyle.xml/ForLoopsMustUseBraces" />
-    <rule ref="category/apex/codestyle.xml/IfElseStmtsMustUseBraces" />
+
+    <!-- Naming conventions -->
+    <rule ref="category/apex/codestyle.xml/ClassNamingConventions"/>
+    <rule ref="category/apex/codestyle.xml/MethodNamingConventions"/>
+    <rule ref="category/apex/codestyle.xml/VariableNamingConventions"/>
+
+    <!-- Code style and formatting -->
+    <rule ref="category/apex/codestyle.xml/AvoidHardcodingId"/>
+    <rule ref="category/apex/codestyle.xml/AvoidGlobalModifier"/>
+    <rule ref="category/apex/codestyle.xml/AvoidDebugStatements"/>
+
+    <!-- Best practices -->
+    <rule ref="category/apex/bestpractices.xml/AvoidSoqlInLoops"/>
+    <rule ref="category/apex/bestpractices.xml/AvoidDmlStatementsInLoops"/>
+    <rule ref="category/apex/bestpractices.xml/AvoidHardcodingId"/>
+    <rule ref="category/apex/bestpractices.xml/AvoidLogicInTrigger"/>
+    <rule ref="category/apex/bestpractices.xml/AvoidUnreachableCode"/>
+
+    <!-- Error handling -->
+    <rule ref="category/apex/errorprone.xml/AvoidEmptyCatchBlock"/>
+    <rule ref="category/apex/errorprone.xml/AvoidHardcodingId"/>
+    <rule ref="category/apex/errorprone.xml/AvoidNullPointerExceptions"/>
+
+    <!-- Performance -->
+    <rule ref="category/apex/performance.xml/AvoidSoqlInLoops"/>
+    <rule ref="category/apex/performance.xml/AvoidDmlStatementsInLoops"/>
+    <rule ref="category/apex/performance.xml/AvoidHardcodingId"/>
+
 </ruleset>
