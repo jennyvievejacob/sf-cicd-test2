@@ -7,13 +7,12 @@
         Custom ruleset for Apex.
     </description>
     <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts" />
-    <rule ref="category/apex/bestpractices.xml/AvoidSoqlInLoops"/>
-    <rule ref="category/apex/errorprone.xml/AvoidDirectAccessTriggerMap" />
+    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop"/>
     <rule ref="category/apex/security.xml/ApexSharingViolations" />
-    <rule ref="category/apex/codestyle.xml/ClassNamingConventions"/>
-    <rule ref="category/apex/codestyle.xml/MethodNamingConventions"/>
-    <rule ref="category/apex/codestyle.xml/VariableNamingConventions"/>
-    <rule ref="category/apex/codestyle.xml/AvoidHardcodingId"/>
-    <rule ref="category/apex/codestyle.xml/AvoidGlobalModifier"/>
-    <rule ref="category/apex/codestyle.xml/AvoidDebugStatements"/>
+    <rule ref="category/apex/codestyle.xml/FieldNamingConventions"/>
+    <rule ref="category/apex/codestyle.xml/PropertyNamingConventions"/>
+    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces" />
+    <rule ref="category/apex/codestyle.xml/AnnotationsNamingConventions" />
+    <rule ref="category/apex/codestyle.xml/ClassNamingConventions" />
+    <rule ref="category/apex/codestyle.xml/FieldDeclarationsShouldBeAtStart" />
 </ruleset>
