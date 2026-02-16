@@ -6,13 +6,31 @@
     <description>
         Custom ruleset for Apex.
     </description>
-    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts" />
-    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop"/>
-    <rule ref="category/apex/security.xml/ApexSharingViolations" />
-    <rule ref="category/apex/codestyle.xml/FieldNamingConventions"/>
-    <rule ref="category/apex/codestyle.xml/PropertyNamingConventions"/>
-    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces" />
-    <rule ref="category/apex/codestyle.xml/AnnotationsNamingConventions" />
-    <rule ref="category/apex/codestyle.xml/ClassNamingConventions" />
-    <rule ref="category/apex/codestyle.xml/FieldDeclarationsShouldBeAtStart" />
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/security.xml/ApexSharingViolations">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/FieldNamingConventions">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/PropertyNamingConventions">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/AnnotationsNamingConventions">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/ClassNamingConventions">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/codestyle.xml/FieldDeclarationsShouldBeAtStart">
+        <priority>2</priority>
+    </rule>
 </ruleset>
