@@ -1,0 +1,20 @@
+name: PMD Check
+on: 
+  pull_request: 
+    branches: [ OrgSource ]
+jobs:
+  pmd:
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run PMD
+        uses: pmd/pmd-github-action@v2
+        with:
+          rulesets: 'config/ruleset.xml'
+          sourcePath: 'force-app/main/default'
+          version: latest
+          analyzeModifiedFilesOnly: true
+          createGitHubAnnotations: true
+          uploadSarifReport: false
+          failOnViolation: true
