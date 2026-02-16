@@ -17,3 +17,4 @@ jobs:
           analyzeModifiedFilesOnly: true
           createGitHubAnnotations: true
           uploadSarifReport: false
+          failOnViolation: true
