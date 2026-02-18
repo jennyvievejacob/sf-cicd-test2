@@ -106,15 +106,15 @@ jobs:
         echo "Starting validation deployment..."
 
         # Debug: list contents of classes folder
-        echo "Contents of delta/package/classes:"
-        ls delta/package/classes || echo "No classes folder found!"
+        echo "Contents of delta/package:"
+        ls delta/package || echo "No classes folder found!"
 
         # Check required files exist
-        if [ ! -f delta/package/classes/AccountControllerTest.cls ]; then
+        if [ ! -f delta/package/AccountControllerTest.cls ]; then
           echo "ERROR: AccountControllerTest.cls is missing!"
           exit 1
         fi
-        if [ ! -f delta/package/classes/AccountControllerTest.cls-meta.xml ]; then
+        if [ ! -f delta/package/AccountControllerTest.cls-meta.xml ]; then
           echo "ERROR: AccountControllerTest.cls-meta.xml is missing!"
           exit 1
         fi
