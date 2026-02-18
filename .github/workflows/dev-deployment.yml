@@ -104,7 +104,21 @@ jobs:
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
-        
+
+        # Debug: list contents of classes folder
+        echo "Contents of delta/package/classes:"
+        ls delta/package/classes || echo "No classes folder found!"
+
+        # Check required files exist
+        if [ ! -f delta/package/classes/AccountControllerTest.cls ]; then
+          echo "ERROR: AccountControllerTest.cls is missing!"
+          exit 1
+        fi
+        if [ ! -f delta/package/classes/AccountControllerTest.cls-meta.xml ]; then
+          echo "ERROR: AccountControllerTest.cls-meta.xml is missing!"
+          exit 1
+        fi
+
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
           --manifest delta/package/package.xml \
