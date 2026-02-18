@@ -66,16 +66,13 @@ jobs:
     # Generate delta package.xml using git diff
     - name: Generate Delta Package
       run: |
-        # Get the base branch (main/master)
         BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
         HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
 
         echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
 
-        # Create delta directory
         mkdir -p delta
 
-        # Generate package.xml and delta source files
         sf sgd:source:delta \
           --to $HEAD_BRANCH \
           --from origin/$BASE_BRANCH \
@@ -84,61 +81,57 @@ jobs:
 
         # Display generated package.xml
         echo "Generated package.xml:"
-        if [ -f "delta/package/package.xml" ]; then
-          cat delta/package/package.xml
+        if [ -f "delta/package.xml" ]; then
+          cat delta/package.xml
         else
           echo "No package.xml generated"
         fi
 
         # Show folder structure for debugging
         echo "Delta package folder structure:"
-        find delta/package -type f
+        find delta -type f
 
         # Check if there are any changes to deploy
-        if [ ! -f "delta/package/package.xml" ] || [ ! -s "delta/package/package.xml" ]; then
+        if [ ! -f "delta/package.xml" ] || [ ! -s "delta/package.xml" ]; then
           echo "No metadata changes detected"
           echo "SKIP_DEPLOYMENT=true" >> $GITHUB_ENV
         else
           echo "SKIP_DEPLOYMENT=false" >> $GITHUB_ENV
         fi
 
-        # Validate that each member in package.xml has its files
-        echo "Validating package.xml members..."
-        # Loop through each <types> block
-
     # Validate deployment (Check Only)
     - name: Validate Deployment
-      id: validate_step # Assign an ID to this step to access its outputs
+      id: validate_step
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
 
-        # Debug: list contents of classes folder
-        echo "Contents of delta/package:"
-        ls delta/package || echo "No classes folder found!"
+        # Debug: list contents of delta folder
+        echo "Contents of delta folder:"
+        ls -R delta || echo "No delta folder found!"
 
-        # Check required files exist
-        if [ ! -f delta/package/AccountControllerTest.cls ]; then
+        # Check required files exist in classes folder
+        if [ ! -f delta/classes/AccountControllerTest.cls ]; then
           echo "ERROR: AccountControllerTest.cls is missing!"
           exit 1
         fi
-        if [ ! -f delta/package/AccountControllerTest.cls-meta.xml ]; then
+        if [ ! -f delta/classes/AccountControllerTest.cls-meta.xml ]; then
           echo "ERROR: AccountControllerTest.cls-meta.xml is missing!"
           exit 1
         fi
 
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
-          --manifest delta/package/package.xml \
+          --manifest delta/package.xml \
           --target-org target-org \
           --test-level RunLocalTests \
           --wait 30 \
           --json)
 
-        # Extract the 'id' field from the JSON output & Store the ID as a step output
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
+
       
     # Quick Deploy using Validation ID
     - name: Deploy to Target Org
