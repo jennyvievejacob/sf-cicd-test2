@@ -1,0 +1,23 @@
+name: PMD Check
+on:
+  pull_request:
+    branches: [ OrgSource ]
+jobs:
+  pmd:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run PMD
+        id: pmd
+        uses: pmd/pmd-github-action@v2
+        with:
+          rulesets: 'config/ruleset.xml'
+          sourcePath: 'force-app/main/default'
+          version: latest
+          analyzeModifiedFilesOnly: true
+          createGitHubAnnotations: true
+      - name: Fail build if there are violations
+        if: steps.pmd.outputs.violations != '0'
+        run: exit 1
