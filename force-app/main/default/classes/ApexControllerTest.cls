@@ -1,7 +1,7 @@
 @IsTest
 public class AccountControllerTest {
 
-    @testSetup
+    @TestSetup
     static void setupTestData() {
         List<Account> accounts = new List<Account>();
         for (Integer i = 0; i < 2; i++) {
