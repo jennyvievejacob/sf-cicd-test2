@@ -1,28 +1,55 @@
 public with sharing class AccountController {
-    // BAD: No sharing keyword (defaults to without sharing, security risk)
     public void updateAccountIndustry(List<Account> accs) {
-        
-        for(Account a : accs) {
-            // BAD: SOQL query inside a for loop (hits governor limits)
-            List<Contact> contacts = [SELECT Id FROM Contact WHERE AccountId = :a.Id];
-            
-            for(Contact c : contacts)
-                c.Description = 'Updated via bad class';
-                // BAD: DML operation inside a nested loop (hits governor limits)
-                update c;
-            
+        if (accs == null || accs.isEmpty()) {
+            return;
+        }
+
+        Set<Id> accountIds = new Set<Id>();
+        for (Account a : accs) {
+            if (a.Id != null) {
+                accountIds.add(a.Id);
+            }
+        }
+
+        List<Contact> contacts = [
+            SELECT Id, Description, AccountId
+            FROM Contact
+            WHERE AccountId IN :accountIds
+        ];
+
+        for (Contact c : contacts) {
+            c.Description = 'Updated via AccountController';
+        }
+
+        for (Account a : accs) {
             a.Industry = 'Technology';
-            // BAD: DML inside a loop
-            update a;
+        }
+
+        try {
+            if (!contacts.isEmpty()) {
+                update contacts;
+            }
+            if (!accs.isEmpty()) {
+                update accs;
+            }
+        } catch (DmlException e) {
+            System.debug('Error updating records: ' + e.getMessage());
         }
     }
-    
-    // BAD: Hardcoded IDs and poor error handling
+
     public void deleteOldAccounts() {
-        // BAD: Hardcoded IDs make deployment difficult
-        List<Account> accts = [SELECT Id FROM Account WHERE CreatedDate < LAST_N_DAYS:30];
-        
-        // BAD: No try-catch block for DML exceptions
-        delete accts; 
+        List<Account> accts = [
+            SELECT Id
+            FROM Account
+            WHERE CreatedDate < :System.today().addDays(-30)
+        ];
+
+        if (!accts.isEmpty()) {
+            try {
+                delete accts;
+            } catch (DmlException e) {
+                System.debug('Error deleting accounts: ' + e.getMessage());
+            }
+        }
     }
 }
