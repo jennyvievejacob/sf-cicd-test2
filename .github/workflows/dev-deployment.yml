@@ -44,7 +44,7 @@ jobs:
     # Create JWT key file from secret
     - name: Create JWT Key File
       run: |
-        echo "${{ secrets.SF_JWT_KEY }}" > jwt-key.txt
+        echo "${{ secrets.SF_JWT_KEY }}" | tr -d '\r' > jwt-key.txt
         chmod 600 jwt-key.txt
 
     # Authenticate to Salesforce using JWT
