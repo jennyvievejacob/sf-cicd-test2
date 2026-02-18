@@ -44,7 +44,7 @@ jobs:
     # Create JWT key file from secret
     - name: Create JWT Key File
       run: |
-        echo "${{ secrets.SF_JWT_KEY }}" > jwt-key.txt
+        echo "${{ secrets.SF_JWT_KEY }}" | tr -d '\r' > jwt-key.txt
         chmod 600 jwt-key.txt
 
     # Authenticate to Salesforce using JWT
@@ -104,7 +104,21 @@ jobs:
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
-        
+
+        # Debug: list contents of classes folder
+        echo "Contents of delta/package/classes:"
+        ls delta/package/classes || echo "No classes folder found!"
+
+        # Check required files exist
+        if [ ! -f delta/package/classes/AccountControllerTest.cls ]; then
+          echo "ERROR: AccountControllerTest.cls is missing!"
+          exit 1
+        fi
+        if [ ! -f delta/package/classes/AccountControllerTest.cls-meta.xml ]; then
+          echo "ERROR: AccountControllerTest.cls-meta.xml is missing!"
+          exit 1
+        fi
+
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
           --manifest delta/package/package.xml \
