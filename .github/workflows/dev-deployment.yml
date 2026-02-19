@@ -113,7 +113,7 @@ jobs:
           --wait 30 \
           --json)
 
-        # Extract the  'id' field from the JSON output & Store the ID as a step output
+        # Extract the 'id' field from the JSON output & Store the ID as a step output
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
@@ -123,14 +123,16 @@ jobs:
         echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
         set +e
         sf project deploy quick \
-          --job-id ${{ steps.validate_step.outputs.validation_id }}" \
+          --job-id ${{ steps.validate_step.outputs.validation_id }} \
           --target-org target-org \
           --wait 30 \
           --verbose
         if [ $? -ne 0 ]; then
           echo "Quick deploy failed, falling back to full deploy..."
           sf project deploy start \
+            --manifest delta/package/package.xml \
             --target-org target-org \
+            --test-level RunLocalTests \
             --wait 30 \
             --verbose
         fi
