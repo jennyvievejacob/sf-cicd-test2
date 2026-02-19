@@ -6,7 +6,7 @@ on:
     paths:
       - 'force-app/**'
       - 'manifest/**'
-
+# Environment variables
 env:
   SF_USE_GENERIC_UNIX_KEYCHAIN: true
   SF_DOMAIN_RETRY: 300
@@ -18,101 +18,121 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    # Checkout the repository
+    - name: Checkout source code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for git diff
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+    # Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-      - name: Install Salesforce CLI
-        run: |
-          npm install -g @salesforce/cli
-          sf --version
+    # Install Salesforce CLI via NPM
+    - name: Install Salesforce CLI
+      run: |
+        npm install -g @salesforce/cli
+        sf --version
 
-      - name: Install SFDX Git Delta
-        run: echo y | sf plugins install sfdx-git-delta
+    # Install SFDX Git Delta for package.xml generation
+    - name: Install SFDX Git Delta
+      run: |
+        echo y | sf plugins install sfdx-git-delta
 
-      - name: Create JWT Key File
-        run: |
-          echo "${{ secrets.SF_JWT_KEY }}" | tr -d '\r' > jwt-key.txt
-          chmod 600 jwt-key.txt
+    # Create JWT key file from secret
+    - name: Create JWT Key File
+      run: |
+        echo "${{ secrets.SF_JWT_KEY }}" > jwt-key.txt
+        chmod 600 jwt-key.txt
 
-      - name: Authenticate to Salesforce
-        run: |
-          sf org login jwt \
-            --client-id ${{ secrets.SF_CLIENT_ID }} \
-            --jwt-key-file jwt-key.txt \
-            --username ${{ secrets.SF_USERNAME }} \
-            --instance-url ${{ secrets.SF_INSTANCE_URL }} \
-            --alias target-org \
-            --set-default
+    # Authenticate to Salesforce using JWT
+    - name: Authenticate to Salesforce
+      run: |
+        sf org login jwt \
+          --client-id ${{ secrets.SF_CLIENT_ID }} \
+          --jwt-key-file jwt-key.txt \
+          --username ${{ secrets.SF_USERNAME }} \
+          --instance-url ${{ secrets.SF_INSTANCE_URL }} \
+          --alias target-org \
+          --set-default
 
-      - name: Verify Authentication
-        run: sf org display --target-org target-org
+    # Verify authentication
+    - name: Verify Authentication
+      run: |
+        sf org display --target-org target-org
 
-      - name: Generate Delta Package
-        run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+    # Generate delta package.xml using git diff
+    - name: Generate Delta Package
+      run: |
+        # Get the base branch (OrgDestination)
+        BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+        HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
+        
+        echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
+        
+        # Create delta directory
+        mkdir -p delta
+        
+        # Generate package.xml for changed components
+        sf sgd:source:delta \
+          --to $HEAD_BRANCH \
+          --from origin/$BASE_BRANCH \
+          --output-dir delta \
+          --generate-delta
 
-          echo "Fetching base branch $BASE_BRANCH..."
-          git fetch origin $BASE_BRANCH
+        # Display generated package.xml
+        echo "Generated package.xml:"
+        if [ -f "delta/package/package.xml" ]; then
+          cat delta/package/package.xml
+        else
+          echo "No package.xml generated"
+        fi
+        
+        # Check if there are any changes to deploy
+        if [ ! -f "delta/package/package.xml" ] || [ ! -s "delta/package/package.xml" ]; then
+          echo "No metadata changes detected"
+          echo "SKIP_DEPLOYMENT=true" >> $GITHUB_ENV
+        else
+          echo "SKIP_DEPLOYMENT=false" >> $GITHUB_ENV
+        fi
 
-          echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
-          mkdir -p delta
+    # Validate deployment (Check Only)
+    - name: Validate Deployment
+      id: validate_step
+      if: env.SKIP_DEPLOYMENT == 'false'
+      run: |
+        echo "Starting validation deployment..."
+        
+        # Run validation with test execution
+        VALIDATION_RESULT=$(sf project deploy validate \
+          --manifest delta/package/package.xml \
+          --target-org target-org \
+          --test-level RunLocalTests \
+          --wait 30 \
+          --json)
 
-          sf sgd:source:delta \
-            --to $HEAD_BRANCH \
-            --from origin/$BASE_BRANCH \
-            --output-dir delta \
-            --generate-delta
+        # Extract the 'id' field from the JSON output & Store the ID as a step output
+        DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
+        echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
+        echo "Validation ID: $DEPLOY_ID"
 
-          echo "Generated package.xml:"
-          cat delta/package.xml || echo "No package.xml generated"
-
-          echo "Delta folder structure:"
-          find delta -type f
-
-          if [ ! -f "delta/package.xml" ] || [ ! -s "delta/package.xml" ]; then
-            echo "No metadata changes detected"
-            echo "SKIP_DEPLOYMENT=true" >> $GITHUB_ENV
-          else
-            echo "SKIP_DEPLOYMENT=false" >> $GITHUB_ENV
-          fi
-
-      - name: Upload Delta Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: delta-package
-          path: delta
-
-      - name: Validate Deployment (Check Only)
-        id: validate_step
-        if: env.SKIP_DEPLOYMENT == 'false'
-        run: |
-          echo "Starting validation deployment..."
-          sf project deploy validate \
-            --manifest delta/package.xml \
+    - name: Attempt Quick Deploy, else run a full deployment
+      run: |
+        echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
+        set +e
+        sf project deploy quick \
+          --job-id ${{ steps.validate_step.outputs.validation_id }} \
+          --target-org target-org \
+          --wait 30 \
+          --verbose
+        if [ $? -ne 0 ]; then
+          echo "Quick deploy failed, falling back to full deploy..."
+          sf project deploy start \
+            --manifest delta/package/package.xml \
             --target-org target-org \
             --test-level RunLocalTests \
             --wait 30 \
-            --json > result.json
-
-          DEPLOY_ID=$(jq -r '.result.id' result.json)
-          echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
-          echo "Validation ID: $DEPLOY_ID"
-
-      - name: Quick Deploy
-        if: success() && steps.validate_step.outputs.validation_id
-        run: |
-          echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
-          sf project deploy quick \
-            --deploy-id ${{ steps.validate_step.outputs.validation_id }} \
-            --target-org target-org \
-            --wait 30 \
             --verbose
+        fi
