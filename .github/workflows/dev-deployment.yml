@@ -66,7 +66,7 @@ jobs:
     # Generate delta package.xml using git diff
     - name: Generate Delta Package
       run: |
-        # Get the base branch (main/master)
+        # Get the base branch (OrgDestination)
         BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
         HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
         
@@ -109,7 +109,7 @@ jobs:
         VALIDATION_RESULT=$(sf project deploy validate \
            --manifest delta/package/package.xml \
           --target-org target-org \
-          --test-level RunLocalTests \
+          --test-level NoTestRun \
           --wait 30 \
           --json)
 
@@ -125,7 +125,7 @@ jobs:
       if: success() && steps.validate_step.outputs.validation_id
       run: |
         echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
-        sf project deploy quick --job-id ${{ steps.validate_step.outputs.validation_id }} \
+        sf project deploy start --job-id ${{ steps.validate_step.outputs.validation_id }} \
           --target-org target-org \
           --wait 30 \
           --verbose
