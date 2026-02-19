@@ -112,6 +112,25 @@ jobs:
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
+
+        # Log validation errors if present
+        echo "Checking for validation errors..."
+        ERRORS=$(echo "$VALIDATION_RESULT" | jq -r '.result.details.componentFailures[]?.problem' 2>/dev/null)
+        TEST_ERRORS=$(echo "$VALIDATION_RESULT" | jq -r '.result.details.runTestResult.failures[]?.message' 2>/dev/null)
+
+        if [ -n "$ERRORS" ]; then
+          echo "❌ Component Validation Errors:"
+          echo "$ERRORS"
+          exit 1
+        fi
+
+        if [ -n "$TEST_ERRORS" ]; then
+          echo "❌ Apex Test Failures:"
+          echo "$TEST_ERRORS"
+          exit 1
+        fi
+
+        echo "✅ Validation completed successfully, no errors found."
     
     # Step 10: Attempt Quick Deploy, else run a full deployment
     - name: Attempt Quick Deploy, else run a full deployment
