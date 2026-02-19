@@ -117,13 +117,13 @@ jobs:
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
-        
+
     # Quick Deploy using Validation ID
     - name: Quick Deployment
       if: success() && steps.validate_step.outputs.validation_id
       run: |
         echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
-        sf project deploy start --job-id ${{ steps.validate_step.outputs.validation_id }} \
+        sf project deploy quick --job-id ${{ steps.validate_step.outputs.validation_id }} \
           --target-org target-org \
           --wait 30 \
           --verbose
