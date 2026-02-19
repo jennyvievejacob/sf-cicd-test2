@@ -107,7 +107,7 @@ jobs:
 
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
-          --manifest delta/package.xml \
+           --manifest delta/package/package.xml \
           --target-org target-org \
           --test-level RunLocalTests \
           --wait 30 \
