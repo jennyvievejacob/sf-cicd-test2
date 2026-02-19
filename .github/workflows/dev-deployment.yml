@@ -18,36 +18,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository
+    # Step 1: Checkout the repository
     - name: Checkout source code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Fetch full history for git diff
 
-    # Setup Node.js
+    # Step 2: Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
 
-    # Install Salesforce CLI via NPM
+    # Step 3: Install Salesforce CLI via NPM
     - name: Install Salesforce CLI
       run: |
         npm install -g @salesforce/cli
         sf --version
 
-    # Install SFDX Git Delta for package.xml generation
+    # Step 4: Install SFDX Git Delta for package.xml generation
     - name: Install SFDX Git Delta
       run: |
         echo y | sf plugins install sfdx-git-delta
 
-    # Create JWT key file from secret
+    # Step 5: Create JWT key file from secret
     - name: Create JWT Key File
       run: |
         echo "${{ secrets.SF_JWT_KEY }}" > jwt-key.txt
         chmod 600 jwt-key.txt
 
-    # Authenticate to Salesforce using JWT
+    # Step 6: Authenticate to Salesforce using JWT
     - name: Authenticate to Salesforce
       run: |
         sf org login jwt \
@@ -58,12 +58,12 @@ jobs:
           --alias target-org \
           --set-default
 
-    # Verify authentication
+    # Step 7: Verify authentication
     - name: Verify Authentication
       run: |
         sf org display --target-org target-org
 
-    # Generate delta package.xml using git diff
+    # Step 8: Generate delta package.xml using git diff
     - name: Generate Delta Package
       run: |
         # Get the base branch (OrgDestination)
@@ -98,6 +98,7 @@ jobs:
           echo "SKIP_DEPLOYMENT=false" >> $GITHUB_ENV
         fi
 
+    # Step 9: Validate Deployment
     - name: Validate Deployment
       id: validate_step
       if: env.SKIP_DEPLOYMENT == 'false'
@@ -111,7 +112,8 @@ jobs:
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
-
+    
+    # Step 10: Attempt Quick Deploy, else run a full deployment
     - name: Attempt Quick Deploy, else run a full deployment
       run: |
         echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
