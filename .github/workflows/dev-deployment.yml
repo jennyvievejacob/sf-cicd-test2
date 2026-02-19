@@ -100,26 +100,24 @@ jobs:
 
     # Validate deployment (Check Only)
     - name: Validate Deployment
-      id: validate_step
+      id: validate_step # Assign an ID to this step to access its outputs
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
-
+        
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
-           --manifest delta/package/package.xml \
+          --manifest delta/package/package.xml \
           --target-org target-org \
-          --test-level NoTestRun \
+          --test-level RunLocalTests \
           --wait 30 \
           --json)
 
-        # Extract the full 18-character deployment ID
+        # Extract the 'id' field from the JSON output & Store the ID as a step output
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
-
-        # Store the ID as a step output (no trimming)
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
-
+        
     # Quick Deploy using Validation ID
     - name: Quick Deployment
       if: success() && steps.validate_step.outputs.validation_id
