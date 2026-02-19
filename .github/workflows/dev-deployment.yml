@@ -100,10 +100,11 @@ jobs:
 
     # Validate deployment (Check Only)
     - name: Validate Deployment
-      id: validate_step
+      id: validate_step # Assign an ID to this step to access its outputs
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
+        
         # Run validation with test execution
         VALIDATION_RESULT=$(sf project deploy validate \
           --manifest delta/package/package.xml \
@@ -112,22 +113,18 @@ jobs:
           --wait 30 \
           --json)
 
-        # Extract the 'id' field from the JSON output & store as step output
+        # Extract the 'id' field from the JSON output & Store the ID as a step output
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
-
-        # Optionally trim to 15 characters if you prefer the UI-style ID
-        DEPLOY_ID_15=${DEPLOY_ID:0:15}
-
-        echo "validation_id=$DEPLOY_ID_15" >> $GITHUB_OUTPUT
-        echo "Validation ID: $DEPLOY_ID_15"
-
+        echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
+        echo "Validation ID: $DEPLOY_ID"
+      
     # Quick Deploy using Validation ID
-    - name: Quick Deployment
+    - name: Deploy to Target Org
       if: success() && steps.validate_step.outputs.validation_id
       run: |
         echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
-
-        sf project deploy quick ${{ steps.validate_step.outputs.validation_id }} \
+        sf project deploy quick \
+          --deploy-id ${{ steps.validate_step.outputs.validation_id }} \
           --target-org target-org \
           --wait 30 \
           --verbose
