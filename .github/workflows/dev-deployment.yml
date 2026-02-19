@@ -2,7 +2,7 @@ name: Deploy to Dev Environment
 
 on:
   pull_request:
-    branches: [ OrgSource ]
+    branches: [ OrgDestination ]
     paths:
       - 'force-app/**'
       - 'manifest/**'
