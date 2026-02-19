@@ -57,7 +57,10 @@ jobs:
       - name: Generate Delta Package
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
+          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+
+          echo "Fetching base branch $BASE_BRANCH..."
+          git fetch origin $BASE_BRANCH
 
           echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
           mkdir -p delta
