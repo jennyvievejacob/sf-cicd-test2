@@ -100,6 +100,7 @@ jobs:
 
     # Validate deployment (Check Only)
     - name: Validate Deployment
+      id: validate_step
       if: env.SKIP_DEPLOYMENT == 'false'
       run: |
         echo "Starting validation deployment..."
@@ -112,16 +113,17 @@ jobs:
           --wait 30 \
           --json)
 
-        # Extract the 'id' field from the JSON output & Store the ID as a step output
+        # Extract the  'id' field from the JSON output & Store the ID as a step output
         DEPLOY_ID=$(echo "$VALIDATION_RESULT" | jq -r '.result.id')
         echo "validation_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
         echo "Validation ID: $DEPLOY_ID"
 
     - name: Attempt Quick Deploy, else run a full deployment
       run: |
+        echo "Starting quick deployment using ID: ${{ steps.validate_step.outputs.validation_id }}"
         set +e
         sf project deploy quick \
-          --job-id ${{ env.validation_id }} \
+          --job-id ${{ steps.validate_step.outputs.validation_id }}" \
           --target-org target-org \
           --wait 30 \
           --verbose
