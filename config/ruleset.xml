@@ -1,36 +1,134 @@
-<?xml version="1.0"?>
-<ruleset name="Apex Rules"
-    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
-    <description>
-        Custom ruleset for Apex.
-    </description>
-    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts">
+<?xml version="1.0" encoding="UTF-8" ?>
+<ruleset xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="NOVA" xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>Custom Ruleset to use with Apex PMD</description>
+    <exclude-pattern>.*</exclude-pattern>
+    <include-pattern>.*/main/default/classes/.*</include-pattern>
+    <include-pattern>.*/main/default/triggers/.*</include-pattern>
+    <!-- Best Practices -->
+    <rule ref="category/apex/bestpractices.xml/ApexAssertionsShouldIncludeMessage" message="Apex assertions should include a message">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts" message="Apex unit test classes should have at least one System.assert() or assertEquals() or AssertNotEquals() call">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestMethodShouldHaveIsTestAnnotation" message="Apex test methods should have @isTest annotation">
+        <priority>2</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestShouldNotUseSeeAllDataTrue" message="@isTest(seeAllData=true) should not be used in Apex unit tests because it opens up the existing database data for unexpected modification by tests">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/AvoidGlobalModifier" message="Avoid using global modifier">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/AvoidLogicInTrigger" message="Avoid logic in triggers">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/apex/bestpractices.xml/DebugsShouldUseLoggingLevel" message="Debug statements should include a LoggingLevel">
+        <priority>3</priority>
+    </rule>
+    <!-- Performance -->
+    <!-- <rule ref="category/apex/performance.xml/AvoidDmlStatementsInLoops" message="Avoid DML Statements inside loops">
         <priority>1</priority>
     </rule>
-    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop">
+    <rule ref="category/apex/performance.xml/AvoidSoqlInLoops" message="Avoid Soql queries inside loops">
         <priority>1</priority>
     </rule>
-    <rule ref="category/apex/security.xml/ApexSharingViolations">
+    <rule ref="category/apex/performance.xml/AvoidSoslInLoops" message="Avoid Sosl queries inside loops">
+        <priority>1</priority>
+    </rule> -->
+
+    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop" >
         <priority>1</priority>
     </rule>
-    <rule ref="category/apex/codestyle.xml/FieldNamingConventions">
-        <priority>1</priority>
+    <!-- Code Style -->
+    <!-- <rule ref="category/apex/codestyle.xml/ClassNamingConventions" message="Class names should begin with an uppercase character">
+        <priority>2</priority>
+    </rule> -->
+    <!-- <rule ref="category/apex/codestyle.xml/ForLoopsMustUseBraces" message="Avoid using 'for' statements without curly braces">
+        <priority>3</priority>
     </rule>
-    <rule ref="category/apex/codestyle.xml/PropertyNamingConventions">
-        <priority>1</priority>
+    <rule ref="category/apex/codestyle.xml/IfElseStmtsMustUseBraces" message="Avoid using 'if...else' statements without curly braces">
+        <priority>3</priority>
+    </rule> -->
+    <!-- <rule ref="category/apex/codestyle.xml/IfStmtsMustUseBraces" message="Avoid using if statements without curly braces">
+        <priority>3</priority>
+    </rule> -->
+    <!-- <rule ref="category/apex/codestyle.xml/LocalVariableNamingConventions" message="Variable declarations should use camelCase">
+        <priority>3</priority>
+    </rule> -->
+    <!-- <rule ref="category/apex/codestyle.xml/MethodNamingConventions" message="Method name does not begin with a lower case character">
+        <priority>2</priority>
+    </rule> -->
+    <rule ref="category/apex/codestyle.xml/OneDeclarationPerLine">
+        <priority>2</priority>
     </rule>
-    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces">
-        <priority>1</priority>
+    <!-- <rule ref="category/apex/codestyle.xml/PropertyNamingConventions" message="Property declarations should use camelCase">
+        <priority>3</priority>
+    </rule> -->
+    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces" message="Avoid using 'while' statements without curly braces">
+        <priority>3</priority>
     </rule>
-    <rule ref="category/apex/codestyle.xml/AnnotationsNamingConventions">
-        <priority>1</priority>
+
+    <!-- Design -->
+    <rule ref="category/apex/design.xml/AvoidDeeplyNestedIfStmts" message="Deeply nested if..else statements are hard to read">
+        <priority>3</priority>
+        <properties>
+            <property name="problemDepth" value="10" />
+        </properties>
     </rule>
-    <rule ref="category/apex/codestyle.xml/ClassNamingConventions">
-        <priority>1</priority>
+    <rule ref="category/apex/design.xml/CyclomaticComplexity">
+        <priority>3</priority>
+        <properties>
+            <property name="classReportLevel" value="1000" />
+            <property name="methodReportLevel" value="125" />
+        </properties>
     </rule>
-    <rule ref="category/apex/codestyle.xml/FieldDeclarationsShouldBeAtStart">
-        <priority>1</priority>
+    <rule ref="category/apex/design.xml/ExcessiveClassLength" message="Avoid really long classes (lines of code)">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="4000" />
+        </properties>
+    </rule>
+    <rule ref="category/apex/design.xml/ExcessiveParameterList" message="Avoid long parameter lists">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="20" />
+        </properties>
+    </rule>
+    <rule ref="category/apex/design.xml/ExcessivePublicCount" message="This class has too many public methods and attributes">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="70" />
+        </properties>
+    </rule>
+    <rule ref="category/apex/design.xml/NcssConstructorCount" message="The constructor has an NCSS line count of {0}">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="50" />
+        </properties>
+    </rule>
+    <rule ref="category/apex/design.xml/NcssMethodCount" message="The method {0}() has an NCSS line count of {1}">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="200" />
+        </properties>
+    </rule>
+    <rule ref="category/apex/design.xml/NcssTypeCount" message="The type has an NCSS line count of {0}">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="4000" />
+        </properties>
+    </rule>
+    <!-- <rule ref="category/apex/design.xml/StdCyclomaticComplexity" message="The {0} ''{1}'' has a Standard Cyclomatic Complexity of {2}">
+        <priority>3</priority>
+        <properties>
+            <property name="reportLevel" value="30" />
+        </properties>
+    </rule> -->
+    <rule ref="category/apex/design.xml/TooManyFields" message="Too many fields">
+        <priority>3</priority>
+        <properties>
+            <property name="maxfields" value="125" />
+        </properties>
     </rule>
 </ruleset>
