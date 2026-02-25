@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run PMD
+          echo "PMD running"
         id: pmd
         uses: pmd/pmd-github-action@v2
-          echo ""
         with:
           rulesets: 'config/ruleset.xml'
           sourcePath: 'force-app/main/default'
