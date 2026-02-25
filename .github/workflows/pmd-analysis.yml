@@ -77,7 +77,7 @@ jobs:
     # Step 8: Generate delta package.xml using git diff
     - name: Generate Delta Package
       run: |
-        # Get the base branch (OrgDestination)
+        # Get the base branch (OrgSource)
         BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
         HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
         
@@ -87,13 +87,8 @@ jobs:
         mkdir -p delta
         
         # Generate package.xml for changed components
-        sf sgd:source:delta \
-          --to $HEAD_BRANCH \
-          --from origin/$BASE_BRANCH \
-          --output-dir delta \
-          --generate-delta
-
-        # Display generated package.xml
+        sf sgd:source:delta --to $HEAD_BRANCH --from origin/$BASE_BRANCH --output-dir delta --generate-delta
+        
         echo "Generated package.xml:"
         if [ -f "delta/package/package.xml" ]; then
           cat delta/package/package.xml
