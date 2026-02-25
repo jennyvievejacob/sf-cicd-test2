@@ -81,9 +81,8 @@ jobs:
         BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
         HEAD_BRANCH="${{ github.event.pull_request.head.sha }}"
         
-        echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
-        
         # Create delta directory
+        echo "Generating delta package between $BASE_BRANCH and $HEAD_BRANCH"
         mkdir -p delta
         
         # Generate package.xml for changed components
@@ -96,12 +95,13 @@ jobs:
           echo "No package.xml generated"
         fi
         
-        # Check if there are any changes to deploy
-        if [ ! -f "delta/package/package.xml" ] || [ ! -s "delta/package/package.xml" ]; then
-          echo "No metadata changes detected"
-          echo "SKIP_DEPLOYMENT=true" >> $GITHUB_ENV
-        else
+        # Check if package.xml has any <types> entries
+        if grep -q "<types>" delta/package/package.xml 2>/dev/null; then
+          echo "🚀 Metadata changes detected — proceeding with validation and deployment."
           echo "SKIP_DEPLOYMENT=false" >> $GITHUB_ENV
+        else
+          echo "✅ No metadata changes detected — skipping validation and deployment."
+          echo "SKIP_DEPLOYMENT=true" >> $GITHUB_ENV
         fi
 
     # Step 9: Validate Deployment
