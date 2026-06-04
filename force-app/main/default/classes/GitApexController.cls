@@ -7,5 +7,8 @@ public with sharing class GitApexController {
     public static void fakeMethodTest(){
         integer k=0;
         k++;
+        k++;
+        k++;
+        k++;
     }
 }
