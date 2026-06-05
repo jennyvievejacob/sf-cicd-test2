@@ -45,8 +45,8 @@ public with sharing class ContactController {
     * @param newPhone - New phone number.
     */
     @AuraEnabled
-    public static void updateContactPhone(Id contactId, String newPhone) {
-        Contact con = [SELECT Id, Phone FROM Contact WHERE Id = :contactId LIMIT 1];
+    public static void updateContactPhone(Id contactId, String newPhone, String emailAdd) {
+        Contact con = [SELECT Id, Phone, EmailAdd FROM Contact WHERE Id = :contactId LIMIT 1];
         con.Phone = newPhone;
         
         if (Schema.sObjectType.Contact.isUpdateable()) {
