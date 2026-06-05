@@ -4,7 +4,7 @@ public with sharing class GitApexController {
     }
 
     //repeat the k++ hundred of times
-    public static void fakeMethodTest(){
+    public static void fakeMethodTest(int test){
         integer k=0;
         k++;
         k++;
